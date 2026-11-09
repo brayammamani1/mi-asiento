@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0f766e">
+<title>Mi asiento</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #f4f6f6; --card: #ffffff; --text: #0f1a1a; --muted: #5b6b6b; --line: #dde5e4;
+    --accent: #0f766e; --accent-ink: #ffffff; --accent-soft: #e3f2f0;
+    --danger: #b42318; --danger-soft: #fdecea; --ok: #15803d; --warn: #b45309;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1212; --card: #131c1c; --text: #e6eeee; --muted: #93a5a4; --line: #243232;
+      --accent: #2bb3a4; --accent-ink: #032321; --accent-soft: #15302d;
+      --danger: #f97066; --danger-soft: #3a1714; --ok: #4ade80; --warn: #fbbf24;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+  main { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; }
+  header { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+  header img { width: 40px; height: 40px; border-radius: 10px; }
+  header h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  label.field { display: block; font-weight: 600; margin: 14px 0 6px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg); padding: 4px; border-radius: 12px; }
+  .seg button { border: 0; background: transparent; color: var(--text); padding: 12px; border-radius: 9px; font: inherit; font-weight: 600; }
+  .seg button[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); color: var(--accent); }
+  input[type="time"], input[type="password"], input[type="text"] {
+    width: 100%; font: inherit; font-size: 20px; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+  input[type="password"], input[type="text"] { font-size: 15px; }
+  .chips { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .chips button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; }
+  .hint { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 14px; }
+  .hint.error { background: var(--danger-soft); color: var(--danger); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .switch { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); }
+  .switch input { width: 22px; height: 22px; accent-color: var(--accent); }
+  .btn { display: block; width: 100%; border: 0; border-radius: 14px; padding: 17px; font: inherit; font-size: 18px; font-weight: 700; margin-top: 14px; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); font-size: 16px; padding: 13px; }
+  .btn.small { font-size: 15px; padding: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+  .btn:disabled { opacity: .55; }
+  .runs { list-style: none; margin: 0; padding: 0; }
+  .runs li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line); }
+  .runs li:first-child { border-top: 0; padding-top: 2px; }
+  .runs .ico { font-size: 22px; line-height: 1; width: 28px; text-align: center; }
+  .runs .t { font-weight: 600; font-size: 15px; }
+  .runs .s { color: var(--muted); font-size: 13px; }
+  .runs a { color: inherit; text-decoration: none; }
+  .live { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .live { animation: none; } }
+  .plans { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+  .plans b { color: var(--text); }
+  .toast { position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 448px; margin: 0 auto;
+    background: var(--text); color: var(--bg); padding: 14px 16px; border-radius: 12px; font-size: 15px;
+    transform: translateY(calc(100% + 48px)); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; }
+  .toast.show { transform: none; visibility: visible; transition: transform .25s ease; }
+  .muted { color: var(--muted); font-size: 14px; }
+  [hidden] { display: none !important; }
+  a.link { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="icon-192.png" alt="">
+    <div>
+      <h1>Mi asiento</h1>
+      <p>Busca y reserva tu lugar en la biblioteca</p>
+    </div>
+  </header>
+
+  <!-- Configuración inicial: la llave queda guardada solo en este celular -->
+  <section class="card" id="setup" hidden>
+    <h2>Configurar (una sola vez)</h2>
+    <p class="muted" style="margin-top:0">Pega tu llave de GitHub (empieza con <code>github_pat_</code>). Queda guardada solo en este celular.</p>
+    <input type="password" id="token" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_...">
+    <button class="btn primary" id="saveToken">Guardar llave</button>
+    <p class="hint" id="setupMsg" hidden></p>
+  </section>
+
+  <section id="app" hidden>
+    <div class="card">
+      <h2>Nueva búsqueda</h2>
+
+      <label class="field">¿Cuándo llegas a la biblioteca?</label>
+      <div class="seg" role="group">
+        <button id="modeNow" aria-pressed="true">Ya (en &lt; 55 min)</button>
+        <button id="modeAt" aria-pressed="false">A una hora</button>
+      </div>
+      <div id="atBox" hidden>
+        <label class="field" for="llegada">Hora de llegada</label>
+        <input type="time" id="llegada" step="300">
+      </div>
+
+      <label class="field" for="hasta">Buscar hasta</label>
+      <input type="time" id="hasta" step="300">
+      <div class="chips">
+        <button data-plus="60">+1 h</button>
+        <button data-plus="120">+2 h</button>
+        <button data-plus="180">+3 h</button>
+        <button data-max>Hasta 20:00</button>
+      </div>
+
+      <p class="hint" id="plan"></p>
+
+      <div class="row">
+        <label class="switch"><input type="checkbox" id="probar"> Solo simular (no reserva)</label>
+      </div>
+
+      <button class="btn primary" id="go">🔎 Buscar asiento</button>
+      <button class="btn ghost" id="stop">🛑 Cancelar búsqueda</button>
+    </div>
+
+    <div class="card">
+      <h2>Estado</h2>
+      <ul class="runs" id="runs"><li class="muted">Cargando…</li></ul>
+      <p class="muted" style="margin:10px 0 0">El resultado (qué asiento y hasta qué hora hacer check-in) te llega por <b>ntfy</b>.</p>
+    </div>
+
+    <div class="card">
+      <h2>Qué busca, en orden</h2>
+      <ol class="plans">
+        <li><b>Plan A</b> · 研究厢 2º piso (el 10 primero) y 3er piso</li>
+        <li><b>Plan B</b> · 研习区 4º piso, asientos 001–031 y 070–109</li>
+        <li><b>Plan C</b> · 单人研习位 3er piso</li>
+      </ol>
+      <p class="muted" style="margin:10px 0 0">Nunca reserva antes de 55 min de tu llegada, así siempre llegas a hacer check-in.</p>
+      <button class="btn small" id="forget">Cambiar llave de GitHub</button>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const OWNER = "brayammamani1", REPO = "zjnu-biblioteca", WORKFLOW = "reservar.yml";
+const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const KEY = "mi_asiento_token";
+const MARGEN = 55, APERTURA = 7 * 60, CIERRE = 20 * 60, ESPERA_MAX = 5 * 60;
+const $ = (id) => document.getElementById(id);
+
+// ---------- almacenamiento (puede fallar en modo incógnito) ----------
+const store = {
+  get() { try { return localStorage.getItem(KEY) || ""; } catch { return ""; } },
+  set(v) { try { localStorage.setItem(KEY, v); return true; } catch { return false; } },
+  del() { try { localStorage.removeItem(KEY); } catch {} },
+};
+let memToken = store.get();
+
+// ---------- hora de China (la biblioteca usa UTC+8) ----------
+const fmtHM = new Intl.DateTimeFormat("es", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hour12: false });
+const minutosChina = (d = new Date()) => { const [h, m] = fmtHM.format(d).split(":").map(Number); return h * 60 + m; };
+const aHM = (min) => { min = ((min % 1440) + 1440) % 1440; return `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`; };
+const deHM = (s) => { const [h, m] = (s || "").split(":").map(Number); return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null; };
+const redondear5 = (m) => Math.ceil(m / 5) * 5;
+
+// ---------- GitHub ----------
+async function gh(path, opts = {}) {
+  const headers = { "Accept": "application/vnd.github+json", "Authorization": `Bearer ${memToken}`, "X-GitHub-Api-Version": "2022-11-28" };
+  if (opts.body) headers["Content-Type"] = "application/json";
+  return fetch(API + path, { ...opts, headers, cache: "no-store" });
+}
+function explicar(status) {
+  if (status === 401) return "La llave no es válida o ya venció. Crea otra y pégala de nuevo.";
+  if (status === 403) return "La llave no tiene permiso. En GitHub debe tener Actions: Read and write.";
+  if (status === 404) return "La llave no tiene acceso al repositorio zjnu-biblioteca.";
+  if (status === 422) return "GitHub rechazó los datos de la búsqueda.";
+  return `GitHub respondió ${status}. Intenta de nuevo.`;
+}
+
+// ---------- UI ----------
+let modo = "now";
+function toast(msg, ms = 4000) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
+
+function mostrar() {
+  const tiene = !!memToken;
+  $("setup").hidden = tiene; $("app").hidden = !tiene;
+  if (tiene) { iniciarFormulario(); cargarRuns(); }
+}
+
+function iniciarFormulario() {
+  const ahora = minutosChina();
+  if (!$("llegada").value) $("llegada").value = aHM(Math.max(redondear5(ahora + 60), APERTURA + MARGEN));
+  if (!$("hasta").value) $("hasta").value = aHM(Math.min(redondear5(ahora + 120), CIERRE));
+  actualizarPlan();
+}
+
+function llegadaMin() { return modo === "now" ? minutosChina() : deHM($("llegada").value); }
+
+function calcular() {
+  const ahora = minutosChina();
+  const llegada = llegadaMin();
+  let hasta = deHM($("hasta").value);
+  if (llegada === null || hasta === null) return { error: "Elige las horas." };
+  const inicio = Math.max(llegada - MARGEN, ahora, APERTURA);
+  if (hasta > CIERRE) hasta = CIERRE;
+  if (modo === "at" && llegada < ahora) return { error: "Esa hora de llegada ya pasó. Usa «Ya»." };
+  if (hasta <= inicio) return { error: `«Buscar hasta» debe ser después de las ${aHM(inicio)} (y el sistema solo reserva hasta las 20:00).` };
+  if (inicio - ahora > ESPERA_MAX) return { error: `Es muy pronto: empezaría a las ${aHM(inicio)}. Vuelve a tocar menos de 5 h antes.` };
+  return { llegada, hasta, inicio, ahora };
+}
+
+function actualizarPlan() {
+  const c = calcular(), p = $("plan");
+  p.classList.toggle("error", !!c.error);
+  $("go").disabled = !!c.error;
+  if (c.error) { p.textContent = c.error; return; }
+  const empieza = c.inicio <= c.ahora ? "Empieza a buscar en ~1 min" : `Empieza a buscar a las <b>${aHM(c.inicio)}</b>`;
+  p.innerHTML = `${empieza} y sigue hasta las <b>${aHM(c.hasta)}</b>. Si encuentra uno, tendrás 60 min para hacer check-in.`;
+}
+
+async function lanzar(inputs, okMsg) {
+  const r = await gh(`/actions/workflows/${WORKFLOW}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main", inputs }) });
+  if (r.status === 204) { toast(okMsg, 5000); setTimeout(cargarRuns, 3000); setTimeout(cargarRuns, 9000); return true; }
+  let detalle = ""; try { detalle = (await r.json()).message || ""; } catch {}
+  toast(`${explicar(r.status)} ${detalle}`, 7000);
+  return false;
+}
+
+// ---------- estado de las búsquedas ----------
+const ICONOS = { queued: "⏳", waiting: "⏳", pending: "⏳", in_progress: "🔎" };
+function describir(run) {
+  if (run.status !== "completed") return { ico: ICONOS[run.status] || "⏳", txt: run.status === "in_progress" ? "Buscando ahora…" : "Arrancando…", vivo: true };
+  if (run.conclusion === "success") return { ico: "✅", txt: "Terminó (mira ntfy)" };
+  if (run.conclusion === "cancelled") return { ico: "🛑", txt: "Detenida" };
+  return { ico: "⚠️", txt: "Terminó con error" };
+}
+let pollH = null;
+async function cargarRuns() {
+  clearTimeout(pollH);
+  let activo = false;
+  try {
+    const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=6`);
+    if (!r.ok) { $("runs").innerHTML = `<li class="muted">${explicar(r.status)}</li>`; return; }
+    const { workflow_runs: runs = [] } = await r.json();
+    if (!runs.length) { $("runs").innerHTML = `<li class="muted">Todavía no hay búsquedas.</li>`; }
+    else {
+      $("runs").innerHTML = runs.map((run) => {
+        const d = describir(run); if (d.vivo) activo = true;
+        const cuando = fmtHM.format(new Date(run.created_at));
+        const titulo = (run.display_title || run.name || "").replace(/</g, "&lt;");
+        return `<li><span class="ico ${d.vivo ? "live" : ""}">${d.ico}</span>
+          <a href="${run.html_url}" target="_blank" rel="noopener"><div class="t">${titulo}</div>
+          <div class="s">${d.txt} · ${cuando}</div></a></li>`;
+      }).join("");
+    }
+  } catch (e) {
+    $("runs").innerHTML = `<li class="muted">Sin conexión con GitHub. Reintento…</li>`;
+  } finally {
+    if (!document.hidden) pollH = setTimeout(cargarRuns, activo ? 8000 : 30000);
+  }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && memToken) cargarRuns(); });
+
+// ---------- eventos ----------
+$("saveToken").onclick = async () => {
+  const v = $("token").value.trim(), msg = $("setupMsg");
+  msg.hidden = false; msg.classList.remove("error");
+  if (!/^(github_pat_|ghp_)/.test(v)) { msg.classList.add("error"); msg.textContent = "Eso no parece una llave de GitHub (debe empezar con github_pat_)."; return; }
+  memToken = v; msg.textContent = "Comprobando…";
+  try {
+    const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=1`);
+    if (!r.ok) { msg.classList.add("error"); msg.textContent = explicar(r.status); memToken = ""; return; }
+  } catch { msg.classList.add("error"); msg.textContent = "No pude conectar con GitHub. Revisa tu internet."; memToken = ""; return; }
+  if (!store.set(v)) toast("Ojo: este navegador no deja guardar la llave; tendrás que pegarla cada vez.", 6000);
+  $("token").value = ""; mostrar(); toast("Llave guardada ✓");
+};
+$("forget").onclick = () => { if (confirm("¿Borrar la llave guardada en este celular?")) { store.del(); memToken = ""; mostrar(); } };
+
+$("modeNow").onclick = () => { modo = "now"; $("modeNow").setAttribute("aria-pressed", "true"); $("modeAt").setAttribute("aria-pressed", "false"); $("atBox").hidden = true; actualizarPlan(); };
+$("modeAt").onclick = () => { modo = "at"; $("modeAt").setAttribute("aria-pressed", "true"); $("modeNow").setAttribute("aria-pressed", "false"); $("atBox").hidden = false; ajustarHasta(); actualizarPlan(); };
+function ajustarHasta() {
+  // Si la llegada queda después de "buscar hasta", lo corre a llegada + 2 h (máx 20:00).
+  const l = llegadaMin(), h = deHM($("hasta").value);
+  if (l !== null && (h === null || h <= l)) $("hasta").value = aHM(Math.min(l + 120, CIERRE));
+}
+$("llegada").oninput = () => { ajustarHasta(); actualizarPlan(); };
+$("hasta").oninput = actualizarPlan;
+document.querySelectorAll(".chips button").forEach((b) => b.onclick = () => {
+  const base = llegadaMin() ?? minutosChina();
+  $("hasta").value = aHM("max" in b.dataset ? CIERRE : Math.min(base + Number(b.dataset.plus), CIERRE));
+  actualizarPlan();
+});
+
+$("go").onclick = async () => {
+  const c = calcular(); if (c.error) { toast(c.error); return; }
+  $("go").disabled = true;
+  const llegada = modo === "now" ? "ahora" : aHM(c.llegada);
+  const probar = $("probar").checked;
+  await lanzar({ llegada, hasta: aHM(c.hasta), probar: String(probar) },
+    probar ? "🧪 Simulación enviada. En ~1 min empieza; no reservará nada." : "🔎 Listo. En ~1 min empieza a buscar; te aviso por ntfy.");
+  $("go").disabled = false;
+};
+$("stop").onclick = async () => {
+  if (!confirm("¿Detener la búsqueda en curso?")) return;
+  await lanzar({ llegada: "cancelar", hasta: "", probar: "true" }, "🛑 Deteniendo. Te llegará el aviso por ntfy.");
+};
+
+mostrar();
+</script>
+</body>
+</html>
