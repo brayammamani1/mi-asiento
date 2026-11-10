@@ -133,6 +133,41 @@
   .plans span small { display: block; color: var(--muted); font-size: 13px; }
   .foot { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
 
+
+  /* ---------- ahora en tus salas ---------- */
+  .live-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .icon-btn { width: 44px; height: 44px; flex: none; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); font-size: 20px; line-height: 1;
+    display: grid; place-items: center; transition: transform 160ms var(--ease-out); }
+  .icon-btn:active { transform: scale(0.94); }
+  .icon-btn.spin span { display: inline-block; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .zonas { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .zona { border: 1px solid var(--line); border-radius: var(--r-control); padding: 12px 14px; background: var(--bg); }
+  .zona.hay { border-color: var(--accent); background: var(--accent-soft); }
+  .zona-top { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center; }
+  .zona-top .plan { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--surface); color: var(--accent);
+    font-size: 14px; font-weight: 700; border: 1px solid var(--line); }
+  .zn { font-weight: 650; font-size: 15px; line-height: 1.3; }
+  .zs { color: var(--muted); font-size: 13px; line-height: 1.35; }
+  .count { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; color: var(--muted); }
+  .zona.hay .count { color: var(--accent); }
+  .seats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .seat { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--accent); background: var(--surface); color: var(--accent);
+    font-weight: 700; font-size: 15px; transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out); }
+  .seat:active:not(:disabled) { transform: scale(0.96); background: var(--accent); color: var(--accent-ink); }
+  .seat:disabled { opacity: 0.45; }
+  .mine { margin-top: 14px; padding: 14px; border-radius: var(--r-control); background: var(--accent); color: var(--accent-ink); }
+  .mine .k { font-size: 13px; opacity: 0.85; }
+  .mine .v { font-size: 18px; font-weight: 700; line-height: 1.25; margin-top: 2px; }
+  .mine .d { font-size: 14px; opacity: 0.9; margin-top: 2px; }
+  .mine button { margin-top: 10px; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1.5px solid currentColor; background: transparent; color: inherit; font-weight: 650; }
+  .meta { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  .keybox { margin-top: 14px; }
+  .keybox .row2 { display: flex; gap: 8px; }
+  .keybox .row2 input { flex: 1; min-width: 0; }
+  .keybox .row2 button { min-height: 52px; padding: 0 16px; border-radius: var(--r-control); border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) { .icon-btn.spin span { animation: none; } }
+
   .toast { position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 448px; margin: 0 auto; z-index: 40;
     background: var(--ink); color: var(--bg); padding: 14px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4;
     transform: translateY(calc(100% + 48px)); opacity: 0; visibility: hidden;
@@ -170,7 +205,27 @@
   </section>
 
   <div id="app" hidden>
-    <section class="surface" aria-labelledby="tPlan">
+    <section class="surface" id="live" aria-labelledby="tLive">
+      <div class="live-head">
+        <div>
+          <h2 id="tLive">Ahora en tus salas</h2>
+          <p class="meta" id="liveMeta">Conectando…</p>
+        </div>
+        <button class="icon-btn" id="refresh" aria-label="Actualizar"><span>↻</span></button>
+      </div>
+      <div class="keybox" id="keybox" hidden>
+        <p class="lead">Pega la clave del servidor (te llegó por ntfy). Solo una vez.</p>
+        <div class="row2">
+          <input type="password" id="clave" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="clave" aria-label="Clave del servidor">
+          <button id="saveClave">Guardar</button>
+        </div>
+      </div>
+      <div class="mine" id="mine" hidden></div>
+      <ul class="zonas" id="zonas"></ul>
+      <p class="note" id="liveNote" hidden></p>
+    </section>
+
+    <section class="surface" aria-labelledby="tPlan" style="margin-top:14px">
       <h2 id="tPlan">¿Cuándo vas a estar?</h2>
       <p class="lead">Busco tu asiento justo antes de que llegues.</p>
 
@@ -281,7 +336,7 @@ function toast(msg, ms = 4500) { const t = $("toast"); t.textContent = msg; t.cl
 function mostrar() {
   const tiene = !!memToken;
   $("setup").hidden = tiene; $("app").hidden = !tiene;
-  if (tiene) { iniciar(); cargarRuns(); }
+  if (tiene) { iniciar(); cargarRuns(); cargarLive(); }
 }
 
 function iniciar() {
@@ -437,6 +492,121 @@ $("stop").onclick = async () => {
   if (!confirm("¿Detener la búsqueda en curso?")) return;
   await lanzar({ llegada: "cancelar", salida: "", minimo: "60", probar: "true" }, "Deteniendo. Te llegará el aviso por ntfy.");
 };
+
+// =====================================================================
+// Ahora en tus salas: consulta y reserva al instante por el servidor (Cloudflare)
+// =====================================================================
+const WORKER = store.get("mi_asiento_worker") || "https://mi-asiento.brayamluismamanipoma-a46.workers.dev";
+const KEY_CLAVE = "mi_asiento_clave";
+(function claveDesdeEnlace() {
+  // el aviso de ntfy trae un enlace .../#clave=XXXX: se guarda y se borra de la barra de direcciones
+  const m = location.hash.match(/clave=([A-Za-z0-9_-]{12,})/);
+  if (m) { store.set(KEY_CLAVE, m[1]); history.replaceState(null, "", location.pathname + location.search); }
+})();
+let clave = store.get(KEY_CLAVE);
+const ESTADOS = { "预约成功": "Reservado, falta el check-in", "已预约": "Reservado, falta el check-in", "使用中": "En uso", "临时离开": "Salida temporal" };
+let ultimo = null, cargando = false, liveH = null, reservando = false;
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+async function servidor(ruta, datos) {
+  const url = `${WORKER}${ruta}?k=${encodeURIComponent(clave)}`;
+  // POST con texto plano: el navegador no hace consulta previa, así responde más rápido
+  const r = datos ? await fetch(url, { method: "POST", body: JSON.stringify(datos), cache: "no-store" })
+                  : await fetch(url, { cache: "no-store" });
+  const j = await r.json().catch(() => ({ error: `El servidor respondió ${r.status}` }));
+  if (r.status === 401) { store.del(KEY_CLAVE); clave = ""; }
+  if (!r.ok || j.error) throw new Error(j.error || `Error ${r.status}`);
+  return j;
+}
+
+function pintarLive(d) {
+  const nota = $("liveNote"); nota.hidden = true;
+  $("liveMeta").textContent = `Actualizado ${d.hora} · respondió en ${(d.ms / 1000).toFixed(1)} s`;
+  const m = d.mi_reserva, mine = $("mine");
+  if (m) {
+    const est = ESTADOS[m.estado] || m.estado || "";
+    const cancelable = !/使用|离开/.test(m.estado || "");
+    const horas = (m.hora || "").match(/(\d{2}):(\d{2}):\d{2}/g) || [];
+    const ini = horas[0] ? horas[0].slice(0, 5) : "", finR = horas[1] ? horas[1].slice(0, 5) : "";
+    let checkin = "";
+    if (cancelable && ini) { const t = deHM(ini) + 60; checkin = ` · check-in antes de las ${aHM(t)}`; }
+    m.hora = ini && finR ? `${ini} a ${finR}${checkin}` : (m.hora || "");
+    mine.hidden = false;
+    mine.innerHTML = `<div class="k">Tu reserva</div><div class="v">${esc(m.asiento)}</div>
+      <div class="d">${esc(est)} · ${esc(m.hora)}</div>
+      ${cancelable ? `<button id="cancelMine">Cancelar reserva</button>` : ""}`;
+    if (cancelable) $("cancelMine").onclick = () => cancelarMia(m);
+  } else mine.hidden = true;
+  $("zonas").innerHTML = d.zonas.map((z) => {
+    const hay = z.abierta && z.libres.length > 0;
+    let sub;
+    if (!z.abierta) sub = "No acepta reservas ahora";
+    else {
+      const p = [hay ? `${z.libres.length} libre${z.libres.length > 1 ? "s" : ""}` : "Lleno"];
+      if (z.temporal) p.push(`${z.temporal} en salida temporal`);
+      p.push(`cierra ${z.cierre}`);
+      sub = p.join(" · ");
+    }
+    const botones = hay ? `<div class="seats">${z.libres.slice(0, 12).map((a) =>
+      `<button class="seat" data-area="${esc(z.area)}" data-seat="${esc(a.id)}" data-seg="${esc(z.segment)}" data-name="${esc(a.name)}" data-zona="${esc(z.nombre)}" ${m ? "disabled" : ""}>${esc(a.name)}</button>`).join("")}</div>` : "";
+    return `<li class="zona ${hay ? "hay" : ""}"><div class="zona-top"><b class="plan">${esc(z.plan)}</b>
+      <div><div class="zn">${esc(z.nombre)}</div><div class="zs">${esc(sub)}</div></div>
+      <span class="count">${z.abierta ? `${z.libres.length}/${z.total}` : "–"}</span></div>${botones}</li>`;
+  }).join("");
+  if (m && d.zonas.some((z) => z.libres?.length)) {
+    nota.hidden = false; nota.className = "note info"; nota.textContent = "Ya tienes una reserva: el sistema solo permite una a la vez.";
+  }
+  document.querySelectorAll(".seat").forEach((b) => (b.onclick = () => reservarAhora(b.dataset)));
+}
+
+async function cargarLive(silencioso = false) {
+  clearTimeout(liveH);
+  if (!clave) { $("keybox").hidden = false; $("liveMeta").textContent = "Falta configurar"; return; }
+  $("keybox").hidden = true;
+  if (cargando || reservando) return;
+  cargando = true; $("refresh").classList.add("spin");
+  if (!ultimo && !silencioso) $("liveMeta").textContent = "Conectando con la biblioteca (la primera vez tarda ~5 s)…";
+  try { ultimo = await servidor("/estado"); pintarLive(ultimo); }
+  catch (e) {
+    const nota = $("liveNote"); nota.hidden = false; nota.className = "note err";
+    nota.textContent = clave ? `No pude ver las salas: ${e.message}` : "La clave del servidor no es correcta. Pégala de nuevo.";
+    if (!clave) $("keybox").hidden = false;
+  } finally {
+    cargando = false; $("refresh").classList.remove("spin");
+    if (!document.hidden && clave) liveH = setTimeout(() => cargarLive(true), 10000);
+  }
+}
+
+async function reservarAhora(ds) {
+  if (!confirm(`¿Reservar ${ds.name} (${ds.zona})?\nDesde ahora tendrás 60 min para hacer check-in.`)) return;
+  reservando = true;
+  document.querySelectorAll(".seat").forEach((b) => (b.disabled = true));
+  const t0 = performance.now();
+  try {
+    const r = await servidor("/reservar", { area: ds.area, seat_id: ds.seat, segment: ds.seg });
+    const seg = ((performance.now() - t0) / 1000).toFixed(1);
+    if (r.ok) { navigator.vibrate?.(80); toast(`✅ ${ds.name} reservado en ${seg} s. Check-in antes de las ${r.limite}.`, 9000); }
+    else toast(`No se pudo: ${r.msg || "el sistema lo rechazó"}. Quizá alguien lo tomó antes.`, 7000);
+  } catch (e) { toast(`No se pudo reservar: ${e.message}`, 7000); }
+  finally { reservando = false; cargarLive(true); }
+}
+
+async function cancelarMia(m) {
+  if (!confirm(`¿Cancelar tu reserva de ${m.asiento}?`)) return;
+  try {
+    const r = await servidor("/cancelar", { id: m.id });
+    toast(r.ok ? "Reserva cancelada." : `No se pudo cancelar: ${r.msg}`, 6000);
+  } catch (e) { toast(`No se pudo cancelar: ${e.message}`, 6000); }
+  cargarLive(true);
+}
+
+$("refresh").onclick = () => cargarLive();
+$("saveClave").onclick = () => {
+  const v = $("clave").value.trim();
+  if (v.length < 12) { toast("Esa clave es muy corta."); return; }
+  clave = v; store.set(KEY_CLAVE, v); $("clave").value = ""; cargarLive();
+};
+document.addEventListener("visibilitychange", () => { if (!document.hidden && memToken) cargarLive(true); });
 
 mostrar();
 </script>
