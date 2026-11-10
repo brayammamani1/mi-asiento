@@ -11,161 +11,254 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root {
-    --bg: #f4f6f6; --card: #ffffff; --text: #0f1a1a; --muted: #5b6b6b; --line: #dde5e4;
-    --accent: #0f766e; --accent-ink: #ffffff; --accent-soft: #e3f2f0;
-    --danger: #b42318; --danger-soft: #fdecea; --ok: #15803d; --warn: #b45309;
+    color-scheme: light dark;
+    --bg: oklch(0.972 0.007 190);
+    --surface: oklch(0.996 0.003 190);
+    --ink: oklch(0.24 0.02 200);
+    --muted: oklch(0.47 0.02 200);
+    --line: oklch(0.9 0.012 195);
+    --track: oklch(0.86 0.012 195);
+    --accent: oklch(0.5 0.09 185);
+    --accent-ink: oklch(0.985 0.01 185);
+    --accent-soft: oklch(0.945 0.03 185);
+    --danger: oklch(0.52 0.17 27);
+    --danger-soft: oklch(0.955 0.025 27);
+    --shadow: 0 1px 2px oklch(0.3 0.02 200 / 0.06), 0 6px 20px oklch(0.3 0.02 200 / 0.06);
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --r-surface: 16px; --r-control: 12px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0b1212; --card: #131c1c; --text: #e6eeee; --muted: #93a5a4; --line: #243232;
-      --accent: #2bb3a4; --accent-ink: #032321; --accent-soft: #15302d;
-      --danger: #f97066; --danger-soft: #3a1714; --ok: #4ade80; --warn: #fbbf24;
+      --bg: oklch(0.17 0.012 200);
+      --surface: oklch(0.215 0.014 200);
+      --ink: oklch(0.95 0.008 190);
+      --muted: oklch(0.75 0.015 195);
+      --line: oklch(0.31 0.015 200);
+      --track: oklch(0.38 0.015 200);
+      --accent: oklch(0.75 0.11 180);
+      --accent-ink: oklch(0.2 0.03 185);
+      --accent-soft: oklch(0.29 0.045 185);
+      --danger: oklch(0.73 0.15 25);
+      --danger-soft: oklch(0.28 0.05 25);
+      --shadow: 0 1px 2px oklch(0 0 0 / 0.3);
     }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--text);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
-  main { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; }
-  header { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
-  header img { width: 40px; height: 40px; border-radius: 10px; }
-  header h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
-  header p { margin: 0; color: var(--muted); font-size: 13px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
-  .card h2 { font-size: 15px; margin: 0 0 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-  label.field { display: block; font-weight: 600; margin: 14px 0 6px; }
-  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg); padding: 4px; border-radius: 12px; }
-  .seg button { border: 0; background: transparent; color: var(--text); padding: 12px; border-radius: 9px; font: inherit; font-weight: 600; }
-  .seg button[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); color: var(--accent); }
-  input[type="time"], input[type="password"], input[type="text"] {
-    width: 100%; font: inherit; font-size: 20px; padding: 12px 14px; border-radius: 12px;
-    border: 1px solid var(--line); background: var(--bg); color: var(--text); }
-  input[type="password"], input[type="text"] { font-size: 15px; }
-  .chips { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-  .chips button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; }
-  .hint { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 14px; }
-  .hint.error { background: var(--danger-soft); color: var(--danger); }
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
-  .switch { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); }
-  .switch input { width: 22px; height: 22px; accent-color: var(--accent); }
-  .btn { display: block; width: 100%; border: 0; border-radius: 14px; padding: 17px; font: inherit; font-size: 18px; font-weight: 700; margin-top: 14px; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans SC", sans-serif;
+    -webkit-tap-highlight-color: transparent; }
+  main { max-width: 480px; margin: 0 auto; padding: 18px 16px calc(48px + env(safe-area-inset-bottom)); }
+  h1, h2 { text-wrap: balance; margin: 0; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid color-mix(in oklch, var(--accent) 70%, transparent); outline-offset: 2px; border-radius: 10px; }
+
+  /* ---------- encabezado ---------- */
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .top img { width: 44px; height: 44px; border-radius: 12px; flex: none; }
+  .top h1 { font-size: 24px; line-height: 1.15; letter-spacing: -0.015em; }
+  .top p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .pill { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 14px; font-weight: 650; }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* ---------- planificador ---------- */
+  .surface { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-surface);
+    box-shadow: var(--shadow); padding: 20px 18px; }
+  .surface h2 { font-size: 19px; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .lead { margin: 0 0 6px; color: var(--muted); font-size: 14px; }
+  .field { margin-top: 18px; }
+  .field > .lbl { display: block; font-weight: 650; font-size: 15px; margin-bottom: 8px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: var(--r-control); background: var(--bg); border: 1px solid var(--line); }
+  .seg button { min-height: 44px; border: 0; border-radius: 9px; background: transparent; font-weight: 650; color: var(--muted);
+    transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out); }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px oklch(0.3 0.02 200 / 0.14); }
+  input[type="time"], input[type="password"] { width: 100%; min-height: 52px; font: inherit; padding: 10px 14px; border-radius: var(--r-control);
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  input[type="time"] { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+  input[type="password"] { font-size: 15px; }
+  #llegadaBox { margin-top: 10px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips button { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 15px; font-weight: 600;
+    transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out); }
+  .chips button[aria-checked="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  /* línea de tiempo vertical: lo que va a pasar, en orden */
+  .tl { list-style: none; margin: 22px 0 0; padding: 16px 16px 4px; border-radius: var(--r-control); background: var(--bg); border: 1px solid var(--line); }
+  .tl li { position: relative; display: grid; grid-template-columns: 58px 18px 1fr; column-gap: 10px; padding-bottom: 16px; }
+  .tl .h { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 16px; line-height: 22px; text-align: right; }
+  .tl .dot { position: relative; display: flex; justify-content: center; }
+  .tl .dot::before { content: ""; width: 12px; height: 12px; margin-top: 5px; border-radius: 50%; background: var(--surface); border: 2.5px solid var(--track); z-index: 1; }
+  .tl li.on .dot::before { border-color: var(--accent); background: var(--accent); }
+  .tl li:not(:last-child) .dot::after { content: ""; position: absolute; top: 19px; bottom: -6px; width: 0; border-left: 2.5px dashed var(--track); }
+  .tl li.seg-on .dot::after { border-left: 3px solid var(--accent); }
+  .tl .what { font-weight: 650; line-height: 22px; }
+  .tl .why { color: var(--muted); font-size: 14px; line-height: 1.4; margin-top: 1px; }
+  .note { margin: 12px 0 0; padding: 12px 14px; border-radius: var(--r-control); font-size: 14px; line-height: 1.45; }
+  .note.err { background: var(--danger-soft); color: var(--danger); font-weight: 600; }
+  .note.info { background: var(--accent-soft); color: var(--ink); }
+
+  .toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; min-height: 44px; }
+  .toggle span { font-size: 15px; }
+  .toggle small { display: block; color: var(--muted); font-size: 13px; }
+  .switch { appearance: none; -webkit-appearance: none; flex: none; width: 52px; height: 32px; border-radius: 999px; background: var(--track); position: relative; margin: 0;
+    transition: background-color 180ms var(--ease-out); cursor: pointer; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: var(--surface);
+    box-shadow: 0 1px 3px oklch(0 0 0 / 0.25); transition: transform 200ms var(--ease-out); }
+  .switch:checked { background: var(--accent); }
+  .switch:checked::after { transform: translateX(20px); }
+
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; margin-top: 18px; border: 0;
+    border-radius: 14px; font-size: 18px; font-weight: 700; transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out); }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn.primary { background: var(--accent); color: var(--accent-ink); }
-  .btn.ghost { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); font-size: 16px; padding: 13px; }
-  .btn.small { font-size: 15px; padding: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--line); }
-  .btn:disabled { opacity: .55; }
-  .runs { list-style: none; margin: 0; padding: 0; }
-  .runs li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line); }
-  .runs li:first-child { border-top: 0; padding-top: 2px; }
-  .runs .ico { font-size: 22px; line-height: 1; width: 28px; text-align: center; }
-  .runs .t { font-weight: 600; font-size: 15px; }
+  .btn.danger { min-height: 48px; font-size: 16px; background: transparent; color: var(--danger); border: 1.5px solid var(--danger); margin-top: 14px; }
+  .btn.quiet { min-height: 44px; font-size: 15px; font-weight: 600; background: transparent; color: var(--accent); margin-top: 6px; }
+
+  /* ---------- secciones ---------- */
+  section.plain { margin-top: 28px; }
+  section.plain h2 { font-size: 17px; margin-bottom: 8px; }
+  .runs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .runs li { display: flex; gap: 12px; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+  .runs a { display: flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; flex: 1; min-width: 0; }
+  .runs .ico { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); font-size: 17px; }
+  .runs .t { font-weight: 650; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .runs .s { color: var(--muted); font-size: 13px; }
-  .runs a { color: inherit; text-decoration: none; }
+  .runs .empty { color: var(--muted); font-size: 14px; }
   .live { animation: pulse 1.4s ease-in-out infinite; }
-  @keyframes pulse { 50% { opacity: .35; } }
-  @media (prefers-reduced-motion: reduce) { .live { animation: none; } }
-  .plans { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
-  .plans b { color: var(--text); }
-  .toast { position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 448px; margin: 0 auto;
-    background: var(--text); color: var(--bg); padding: 14px 16px; border-radius: 12px; font-size: 15px;
-    transform: translateY(calc(100% + 48px)); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; }
-  .toast.show { transform: none; visibility: visible; transition: transform .25s ease; }
-  .muted { color: var(--muted); font-size: 14px; }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+  .plans { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .plans li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: baseline; font-size: 15px; }
+  .plans b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 14px; }
+  .plans span small { display: block; color: var(--muted); font-size: 13px; }
+  .foot { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
+
+  .toast { position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 448px; margin: 0 auto; z-index: 40;
+    background: var(--ink); color: var(--bg); padding: 14px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4;
+    transform: translateY(calc(100% + 48px)); opacity: 0; visibility: hidden;
+    transition: transform 240ms var(--ease-out), opacity 240ms var(--ease-out), visibility 0s 240ms; }
+  .toast.show { transform: none; opacity: 1; visibility: visible; transition: transform 240ms var(--ease-out), opacity 240ms var(--ease-out); }
+  @media (prefers-reduced-motion: reduce) {
+    .live { animation: none; }
+    .toast, .toast.show { transform: none; }
+    .btn:active:not(:disabled) { transform: none; }
+  }
   [hidden] { display: none !important; }
-  a.link { color: var(--accent); }
 </style>
 </head>
 <body>
 <main>
-  <header>
+  <header class="top">
     <img src="icon-192.png" alt="">
     <div>
       <h1>Mi asiento</h1>
-      <p>Busca y reserva tu lugar en la biblioteca</p>
+      <p>Te busca lugar en la biblioteca</p>
     </div>
+    <span class="pill live" id="pill" hidden>Buscando</span>
   </header>
 
   <!-- Configuración inicial: la llave queda guardada solo en este celular -->
-  <section class="card" id="setup" hidden>
+  <section class="surface" id="setup" hidden>
     <h2>Configurar (una sola vez)</h2>
-    <p class="muted" style="margin-top:0">Pega tu llave de GitHub (empieza con <code>github_pat_</code>). Queda guardada solo en este celular.</p>
-    <input type="password" id="token" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_...">
+    <p class="lead">Pega tu llave de GitHub, la que empieza con <b>github_pat_</b>. Queda guardada solo en este celular.</p>
+    <div class="field">
+      <label class="lbl" for="token">Llave</label>
+      <input type="password" id="token" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+    </div>
     <button class="btn primary" id="saveToken">Guardar llave</button>
-    <p class="hint" id="setupMsg" hidden></p>
+    <p class="note info" id="setupMsg" hidden></p>
   </section>
 
-  <section id="app" hidden>
-    <div class="card">
-      <h2>Nueva búsqueda</h2>
+  <div id="app" hidden>
+    <section class="surface" aria-labelledby="tPlan">
+      <h2 id="tPlan">¿Cuándo vas a estar?</h2>
+      <p class="lead">Busco tu asiento justo antes de que llegues.</p>
 
-      <label class="field">¿Cuándo llegas a la biblioteca?</label>
-      <div class="seg" role="group">
-        <button id="modeNow" aria-pressed="true">Ya (en &lt; 55 min)</button>
-        <button id="modeAt" aria-pressed="false">A una hora</button>
-      </div>
-      <div id="atBox" hidden>
-        <label class="field" for="llegada">Hora de llegada</label>
-        <input type="time" id="llegada" step="300">
-      </div>
-
-      <label class="field" for="hasta">Buscar hasta</label>
-      <input type="time" id="hasta" step="300">
-      <div class="chips">
-        <button data-plus="60">+1 h</button>
-        <button data-plus="120">+2 h</button>
-        <button data-plus="180">+3 h</button>
-        <button data-max>Hasta 20:00</button>
+      <div class="field">
+        <span class="lbl" id="lLlego">Llegada</span>
+        <div class="seg" role="group" aria-labelledby="lLlego">
+          <button id="modeNow" aria-pressed="true">Ya voy</button>
+          <button id="modeAt" aria-pressed="false">A una hora</button>
+        </div>
+        <div id="llegadaBox" hidden>
+          <input type="time" id="llegada" step="300" aria-label="Hora de llegada">
+        </div>
       </div>
 
-      <p class="hint" id="plan"></p>
-
-      <div class="row">
-        <label class="switch"><input type="checkbox" id="probar"> Solo simular (no reserva)</label>
+      <div class="field">
+        <label class="lbl" for="salida">Me voy a las</label>
+        <input type="time" id="salida" step="300">
       </div>
 
-      <button class="btn primary" id="go">🔎 Buscar asiento</button>
-      <button class="btn ghost" id="stop">🛑 Cancelar búsqueda</button>
-    </div>
+      <div class="field">
+        <span class="lbl" id="lMin">Vale la pena si me quedan al menos</span>
+        <div class="chips" role="radiogroup" aria-labelledby="lMin" id="minimos">
+          <button role="radio" aria-checked="false" data-min="45">45 min</button>
+          <button role="radio" aria-checked="true" data-min="60">1 h</button>
+          <button role="radio" aria-checked="false" data-min="90">1 h 30</button>
+          <button role="radio" aria-checked="false" data-min="120">2 h</button>
+        </div>
+      </div>
 
-    <div class="card">
-      <h2>Estado</h2>
-      <ul class="runs" id="runs"><li class="muted">Cargando…</li></ul>
-      <p class="muted" style="margin:10px 0 0">El resultado (qué asiento y hasta qué hora hacer check-in) te llega por <b>ntfy</b>.</p>
-    </div>
+      <ol class="tl" id="tl" aria-label="Lo que va a pasar"></ol>
+      <p class="note" id="nota" hidden></p>
 
-    <div class="card">
-      <h2>Qué busca, en orden</h2>
-      <ol class="plans">
-        <li><b>Plan A</b> · 研究厢 2º piso (el 10 primero) y 3er piso</li>
-        <li><b>Plan B</b> · 研习区 4º piso, asientos 001–031 y 070–109</li>
-        <li><b>Plan C</b> · 单人研习位 3er piso</li>
-      </ol>
-      <p class="muted" style="margin:10px 0 0">Nunca reserva antes de 55 min de tu llegada, así siempre llegas a hacer check-in.</p>
-      <button class="btn small" id="forget">Cambiar llave de GitHub</button>
-    </div>
-  </section>
+      <label class="toggle">
+        <span>Solo simular<small>Busca igual, pero no reserva nada</small></span>
+        <input type="checkbox" class="switch" id="probar">
+      </label>
+
+      <button class="btn primary" id="go">Buscar asiento</button>
+    </section>
+
+    <section class="plain" aria-labelledby="tRuns">
+      <h2 id="tRuns">Búsquedas</h2>
+      <ul class="runs" id="runs"><li class="empty">Cargando…</li></ul>
+      <button class="btn danger" id="stop" hidden>Detener búsqueda</button>
+      <p class="foot">El resultado (qué asiento y hasta qué hora hacer check-in) te llega por ntfy.</p>
+    </section>
+
+    <section class="plain" aria-labelledby="tPlanes">
+      <h2 id="tPlanes">Qué busca, en orden</h2>
+      <ul class="plans">
+        <li><b>A</b><span>研究厢 2º y 3er piso<small>El 10 del 2º piso primero</small></span></li>
+        <li><b>B</b><span>研习区 4º piso<small>Asientos 001 a 031 y 070 a 109</small></span></li>
+        <li><b>C</b><span>单人研习位 3er piso<small>Cualquiera de los 8</small></span></li>
+      </ul>
+      <p class="foot">Si no hay ninguno de estos, no reserva nada.</p>
+      <button class="btn quiet" id="forget">Cambiar llave de GitHub</button>
+    </section>
+  </div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const OWNER = "brayammamani1", REPO = "zjnu-biblioteca", WORKFLOW = "reservar.yml";
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
-const KEY = "mi_asiento_token";
-const MARGEN = 55, APERTURA = 7 * 60, CIERRE = 20 * 60, ESPERA_MAX = 5 * 60;
+const KEY = "mi_asiento_token", KEY_MIN = "mi_asiento_minimo";
+const MARGEN = 55;            // no reserva antes de 55 min de tu llegada (check-in vence a los 60)
+const APERTURA = 7 * 60;      // el sistema abre a las 07:00
+const CIERRE = 22 * 60;       // tus salas cierran a las 22:00 (el programa lo confirma con el sistema)
+const ESPERA_MAX = 5 * 60;    // GitHub corta los trabajos a las 6 h
+const DURACION_MAX = 345;
 const $ = (id) => document.getElementById(id);
 
 // ---------- almacenamiento (puede fallar en modo incógnito) ----------
 const store = {
-  get() { try { return localStorage.getItem(KEY) || ""; } catch { return ""; } },
-  set(v) { try { localStorage.setItem(KEY, v); return true; } catch { return false; } },
-  del() { try { localStorage.removeItem(KEY); } catch {} },
+  get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
 };
-let memToken = store.get();
+let memToken = store.get(KEY);
+let minimo = Number(store.get(KEY_MIN)) || 60;
 
 // ---------- hora de China (la biblioteca usa UTC+8) ----------
 const fmtHM = new Intl.DateTimeFormat("es", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hour12: false });
-const minutosChina = (d = new Date()) => { const [h, m] = fmtHM.format(d).split(":").map(Number); return h * 60 + m; };
-const aHM = (min) => { min = ((min % 1440) + 1440) % 1440; return `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`; };
+const minutosChina = (d = new Date()) => { const [h, m] = fmtHM.format(d).split(":").map(Number); return (h % 24) * 60 + m; };
+const aHM = (min) => { min = Math.max(0, Math.min(1439, Math.round(min))); return `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`; };
 const deHM = (s) => { const [h, m] = (s || "").split(":").map(Number); return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null; };
 const redondear5 = (m) => Math.ceil(m / 5) * 5;
+const textoMin = (m) => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h && r ? `${h} h ${r} min` : h ? `${h} h` : `${r} min`; };
 
 // ---------- GitHub ----------
 async function gh(path, opts = {}) {
@@ -175,138 +268,174 @@ async function gh(path, opts = {}) {
 }
 function explicar(status) {
   if (status === 401) return "La llave no es válida o ya venció. Crea otra y pégala de nuevo.";
-  if (status === 403) return "La llave no tiene permiso. En GitHub debe tener Actions: Read and write.";
+  if (status === 403) return "La llave no tiene permiso: en GitHub debe tener Actions en Read and write.";
   if (status === 404) return "La llave no tiene acceso al repositorio zjnu-biblioteca.";
   if (status === 422) return "GitHub rechazó los datos de la búsqueda.";
   return `GitHub respondió ${status}. Intenta de nuevo.`;
 }
 
-// ---------- UI ----------
+// ---------- estado del formulario ----------
 let modo = "now";
-function toast(msg, ms = 4000) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
+function toast(msg, ms = 4500) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 
 function mostrar() {
   const tiene = !!memToken;
   $("setup").hidden = tiene; $("app").hidden = !tiene;
-  if (tiene) { iniciarFormulario(); cargarRuns(); }
+  if (tiene) { iniciar(); cargarRuns(); }
 }
 
-function iniciarFormulario() {
+function iniciar() {
   const ahora = minutosChina();
-  if (!$("llegada").value) $("llegada").value = aHM(Math.max(redondear5(ahora + 60), APERTURA + MARGEN));
-  if (!$("hasta").value) $("hasta").value = aHM(Math.min(redondear5(ahora + 120), CIERRE));
-  actualizarPlan();
+  if (!$("llegada").value) $("llegada").value = aHM(Math.min(Math.max(redondear5(ahora + 60), APERTURA + MARGEN), CIERRE - 60));
+  if (!$("salida").value) $("salida").value = aHM(Math.min(redondear5(ahora + 180), CIERRE));
+  document.querySelectorAll("#minimos button").forEach((b) => b.setAttribute("aria-checked", String(Number(b.dataset.min) === minimo)));
+  render();
 }
 
-function llegadaMin() { return modo === "now" ? minutosChina() : deHM($("llegada").value); }
+const llegadaMin = () => (modo === "now" ? minutosChina() : deHM($("llegada").value));
 
 function calcular() {
   const ahora = minutosChina();
   const llegada = llegadaMin();
-  let hasta = deHM($("hasta").value);
-  if (llegada === null || hasta === null) return { error: "Elige las horas." };
+  let salida = deHM($("salida").value);
+  if (llegada === null || salida === null) return { error: "Elige las horas." };
+  const salidaReal = salida;
+  salida = Math.min(salida, CIERRE);
+  if (modo === "at" && llegada < ahora - 1) return { error: "Esa hora de llegada ya pasó. Usa «Ya voy»." };
+  if (salida <= llegada) return { error: "La hora en que te vas tiene que ser después de tu llegada." };
+  if (salida - llegada < minimo) return { error: `Entre tu llegada y tu salida hay menos de ${textoMin(minimo)}. Según tu mínimo, no vale la pena.` };
   const inicio = Math.max(llegada - MARGEN, ahora, APERTURA);
-  if (hasta > CIERRE) hasta = CIERRE;
-  if (modo === "at" && llegada < ahora) return { error: "Esa hora de llegada ya pasó. Usa «Ya»." };
-  if (hasta <= inicio) return { error: `«Buscar hasta» debe ser después de las ${aHM(inicio)} (y el sistema solo reserva hasta las 20:00).` };
-  if (inicio - ahora > ESPERA_MAX) return { error: `Es muy pronto: empezaría a las ${aHM(inicio)}. Vuelve a tocar menos de 5 h antes.` };
-  return { llegada, hasta, inicio, ahora };
+  const finIdeal = Math.min(salida - minimo, CIERRE);
+  if (finIdeal <= inicio) return { error: `Ya no queda tiempo útil: tendría que dejar de buscar a las ${aHM(finIdeal)}.` };
+  if (inicio - ahora > ESPERA_MAX) return { error: `Es muy pronto: empezaría a buscar a las ${aHM(inicio)}. Vuelve a tocar el botón después de las ${aHM(inicio - ESPERA_MAX)}.` };
+  const fin = Math.min(finIdeal, ahora + DURACION_MAX);
+  return { ahora, llegada, salida, salidaReal, inicio, fin, finIdeal, corto: fin < finIdeal };
 }
 
-function actualizarPlan() {
-  const c = calcular(), p = $("plan");
-  p.classList.toggle("error", !!c.error);
+function render() {
+  const c = calcular();
+  const tl = $("tl"), nota = $("nota");
   $("go").disabled = !!c.error;
-  if (c.error) { p.textContent = c.error; return; }
-  const empieza = c.inicio <= c.ahora ? "Empieza a buscar en ~1 min" : `Empieza a buscar a las <b>${aHM(c.inicio)}</b>`;
-  p.innerHTML = `${empieza} y sigue hasta las <b>${aHM(c.hasta)}</b>. Si encuentra uno, tendrás 60 min para hacer check-in.`;
+  if (c.error) {
+    tl.hidden = true; nota.hidden = false; nota.className = "note err"; nota.textContent = c.error; return;
+  }
+  tl.hidden = false;
+  const ev = [];
+  if (modo === "now") {
+    ev.push({ t: c.ahora, o: 0, h: "ahora", what: "Sales y empiezo a buscar", why: "Tienes que poder llegar en menos de 55 min" });
+  } else {
+    ev.push({ t: c.inicio, o: 0, what: "Empiezo a buscar", why: c.inicio <= c.ahora ? "En cuanto GitHub arranque (~1 min)" : "55 min antes de que llegues" });
+    ev.push({ t: c.llegada, o: 1, what: "Llegas", why: "Desde que reserve, tienes 60 min para el check-in" });
+  }
+  ev.push({ t: c.fin, o: 2, what: "Dejo de buscar", why: c.corto ? "Una búsqueda dura máx. 5 h 45 (límite de GitHub)" : `Después te quedaría menos de ${textoMin(minimo)}` });
+  ev.push({ t: c.salida, o: 3, what: "Te vas", why: c.salidaReal > CIERRE ? "Tus salas cierran a las 22:00" : "" });
+  ev.sort((a, b) => a.t - b.t || a.o - b.o);
+  tl.innerHTML = ev.map((e, i) => {
+    const sig = ev[i + 1];
+    const enBusqueda = e.t >= c.inicio && e.t <= c.fin;
+    const tramo = sig && e.t >= c.inicio - 1 && sig.t <= c.fin && e.t < c.fin;
+    return `<li class="${enBusqueda ? "on" : ""} ${tramo ? "seg-on" : ""}">
+      <span class="h">${e.h || aHM(e.t)}</span><span class="dot" aria-hidden="true"></span>
+      <span><div class="what">${e.what}</div>${e.why ? `<div class="why">${e.why}</div>` : ""}</span></li>`;
+  }).join("");
+  nota.hidden = false; nota.className = "note info";
+  nota.textContent = c.corto
+    ? `Para buscar hasta las ${aHM(c.finIdeal)}, toca el botón después de las ${aHM(c.finIdeal - DURACION_MAX)}.`
+    : `Voy a buscar durante ${textoMin(c.fin - Math.max(c.inicio, c.ahora))}. Si ves que no alcanzas a llegar, toca «Detener búsqueda».`;
 }
 
+// ---------- disparar en GitHub ----------
 async function lanzar(inputs, okMsg) {
   const r = await gh(`/actions/workflows/${WORKFLOW}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main", inputs }) });
-  if (r.status === 204) { toast(okMsg, 5000); setTimeout(cargarRuns, 3000); setTimeout(cargarRuns, 9000); return true; }
+  if (r.status === 204) { toast(okMsg); setTimeout(cargarRuns, 3000); setTimeout(cargarRuns, 9000); return true; }
   let detalle = ""; try { detalle = (await r.json()).message || ""; } catch {}
   toast(`${explicar(r.status)} ${detalle}`, 7000);
   return false;
 }
 
-// ---------- estado de las búsquedas ----------
-const ICONOS = { queued: "⏳", waiting: "⏳", pending: "⏳", in_progress: "🔎" };
+// ---------- lista de búsquedas ----------
 function describir(run) {
-  if (run.status !== "completed") return { ico: ICONOS[run.status] || "⏳", txt: run.status === "in_progress" ? "Buscando ahora…" : "Arrancando…", vivo: true };
-  if (run.conclusion === "success") return { ico: "✅", txt: "Terminó (mira ntfy)" };
-  if (run.conclusion === "cancelled") return { ico: "🛑", txt: "Detenida" };
-  return { ico: "⚠️", txt: "Terminó con error" };
+  if (run.status !== "completed") return { ico: run.status === "in_progress" ? "🔎" : "⏳", txt: run.status === "in_progress" ? "Buscando" : "Arrancando", vivo: true };
+  if (run.conclusion === "success") return { ico: "✓", txt: "Terminó, mira ntfy" };
+  if (run.conclusion === "cancelled") return { ico: "■", txt: "Detenida" };
+  return { ico: "!", txt: "Terminó con error" };
 }
+const limpiarTitulo = (t) => (t || "").replace(/^[\u{1F300}-\u{1FAFF}☀-➿]️?\s*/u, "").replace(/</g, "&lt;");
 let pollH = null;
 async function cargarRuns() {
   clearTimeout(pollH);
-  let activo = false;
+  let activo = false, errorCarga = false;
   try {
-    const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=6`);
-    if (!r.ok) { $("runs").innerHTML = `<li class="muted">${explicar(r.status)}</li>`; return; }
+    const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=5`);
+    if (!r.ok) { errorCarga = true; $("runs").innerHTML = `<li class="empty">${explicar(r.status)}</li>`; return; }
     const { workflow_runs: runs = [] } = await r.json();
-    if (!runs.length) { $("runs").innerHTML = `<li class="muted">Todavía no hay búsquedas.</li>`; }
-    else {
-      $("runs").innerHTML = runs.map((run) => {
-        const d = describir(run); if (d.vivo) activo = true;
-        const cuando = fmtHM.format(new Date(run.created_at));
-        const titulo = (run.display_title || run.name || "").replace(/</g, "&lt;");
-        return `<li><span class="ico ${d.vivo ? "live" : ""}">${d.ico}</span>
-          <a href="${run.html_url}" target="_blank" rel="noopener"><div class="t">${titulo}</div>
-          <div class="s">${d.txt} · ${cuando}</div></a></li>`;
-      }).join("");
-    }
-  } catch (e) {
-    $("runs").innerHTML = `<li class="muted">Sin conexión con GitHub. Reintento…</li>`;
+    $("runs").innerHTML = runs.length ? runs.map((run) => {
+      const d = describir(run); if (d.vivo) activo = true;
+      return `<li><a href="${run.html_url}" target="_blank" rel="noopener">
+        <span class="ico ${d.vivo ? "live" : ""}">${d.ico}</span>
+        <span style="min-width:0"><div class="t">${limpiarTitulo(run.display_title || run.name)}</div>
+        <div class="s">${d.txt} · ${fmtHM.format(new Date(run.created_at))}</div></span></a></li>`;
+    }).join("") : `<li class="empty">Todavía no hay búsquedas.</li>`;
+  } catch {
+    errorCarga = true;
+    $("runs").innerHTML = `<li class="empty">Sin conexión con GitHub. Reintento en un momento.</li>`;
   } finally {
+    $("pill").hidden = !activo;
+    $("stop").hidden = !activo && !errorCarga;
     if (!document.hidden) pollH = setTimeout(cargarRuns, activo ? 8000 : 30000);
   }
 }
-document.addEventListener("visibilitychange", () => { if (!document.hidden && memToken) cargarRuns(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden && memToken) { cargarRuns(); render(); } });
+setInterval(() => { if (!document.hidden && memToken) render(); }, 30000);
 
 // ---------- eventos ----------
 $("saveToken").onclick = async () => {
   const v = $("token").value.trim(), msg = $("setupMsg");
-  msg.hidden = false; msg.classList.remove("error");
-  if (!/^(github_pat_|ghp_)/.test(v)) { msg.classList.add("error"); msg.textContent = "Eso no parece una llave de GitHub (debe empezar con github_pat_)."; return; }
+  msg.hidden = false; msg.className = "note info";
+  if (!/^(github_pat_|ghp_)/.test(v)) { msg.className = "note err"; msg.textContent = "Eso no parece una llave de GitHub: debe empezar con github_pat_."; return; }
   memToken = v; msg.textContent = "Comprobando…";
   try {
     const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=1`);
-    if (!r.ok) { msg.classList.add("error"); msg.textContent = explicar(r.status); memToken = ""; return; }
-  } catch { msg.classList.add("error"); msg.textContent = "No pude conectar con GitHub. Revisa tu internet."; memToken = ""; return; }
-  if (!store.set(v)) toast("Ojo: este navegador no deja guardar la llave; tendrás que pegarla cada vez.", 6000);
+    if (!r.ok) { msg.className = "note err"; msg.textContent = explicar(r.status); memToken = ""; return; }
+  } catch { msg.className = "note err"; msg.textContent = "No pude conectar con GitHub. Revisa tu internet."; memToken = ""; return; }
+  if (!store.set(KEY, v)) toast("Este navegador no deja guardar la llave: tendrás que pegarla cada vez.", 6000);
   $("token").value = ""; mostrar(); toast("Llave guardada ✓");
 };
-$("forget").onclick = () => { if (confirm("¿Borrar la llave guardada en este celular?")) { store.del(); memToken = ""; mostrar(); } };
+$("forget").onclick = () => { if (confirm("¿Borrar la llave guardada en este celular?")) { store.del(KEY); memToken = ""; mostrar(); } };
 
-$("modeNow").onclick = () => { modo = "now"; $("modeNow").setAttribute("aria-pressed", "true"); $("modeAt").setAttribute("aria-pressed", "false"); $("atBox").hidden = true; actualizarPlan(); };
-$("modeAt").onclick = () => { modo = "at"; $("modeAt").setAttribute("aria-pressed", "true"); $("modeNow").setAttribute("aria-pressed", "false"); $("atBox").hidden = false; ajustarHasta(); actualizarPlan(); };
-function ajustarHasta() {
-  // Si la llegada queda después de "buscar hasta", lo corre a llegada + 2 h (máx 20:00).
-  const l = llegadaMin(), h = deHM($("hasta").value);
-  if (l !== null && (h === null || h <= l)) $("hasta").value = aHM(Math.min(l + 120, CIERRE));
+function setModo(m) {
+  modo = m;
+  $("modeNow").setAttribute("aria-pressed", String(m === "now"));
+  $("modeAt").setAttribute("aria-pressed", String(m === "at"));
+  $("llegadaBox").hidden = m !== "at";
+  render();
 }
-$("llegada").oninput = () => { ajustarHasta(); actualizarPlan(); };
-$("hasta").oninput = actualizarPlan;
-document.querySelectorAll(".chips button").forEach((b) => b.onclick = () => {
-  const base = llegadaMin() ?? minutosChina();
-  $("hasta").value = aHM("max" in b.dataset ? CIERRE : Math.min(base + Number(b.dataset.plus), CIERRE));
-  actualizarPlan();
+$("modeNow").onclick = () => setModo("now");
+$("modeAt").onclick = () => setModo("at");
+$("llegada").oninput = () => {
+  // si la llegada queda después de la salida, corre la salida 3 h (máx 22:00)
+  const l = deHM($("llegada").value), s = deHM($("salida").value);
+  if (l !== null && (s === null || s <= l)) $("salida").value = aHM(Math.min(l + 180, CIERRE));
+  render();
+};
+$("salida").oninput = render;
+document.querySelectorAll("#minimos button").forEach((b) => b.onclick = () => {
+  minimo = Number(b.dataset.min); store.set(KEY_MIN, String(minimo));
+  document.querySelectorAll("#minimos button").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+  render();
 });
 
 $("go").onclick = async () => {
   const c = calcular(); if (c.error) { toast(c.error); return; }
   $("go").disabled = true;
-  const llegada = modo === "now" ? "ahora" : aHM(c.llegada);
   const probar = $("probar").checked;
-  await lanzar({ llegada, hasta: aHM(c.hasta), probar: String(probar) },
-    probar ? "🧪 Simulación enviada. En ~1 min empieza; no reservará nada." : "🔎 Listo. En ~1 min empieza a buscar; te aviso por ntfy.");
-  $("go").disabled = false;
+  await lanzar({ llegada: modo === "now" ? "ahora" : aHM(c.llegada), salida: aHM(c.salida), minimo: String(minimo), probar: String(probar) },
+    probar ? "Simulación enviada. En ~1 min empieza; no reservará nada." : `Listo. Busco de ${aHM(c.inicio)} a ${aHM(c.fin)}; te aviso por ntfy.`);
+  render();
 };
 $("stop").onclick = async () => {
   if (!confirm("¿Detener la búsqueda en curso?")) return;
-  await lanzar({ llegada: "cancelar", hasta: "", probar: "true" }, "🛑 Deteniendo. Te llegará el aviso por ntfy.");
+  await lanzar({ llegada: "cancelar", salida: "", minimo: "60", probar: "true" }, "Deteniendo. Te llegará el aviso por ntfy.");
 };
 
 mostrar();
