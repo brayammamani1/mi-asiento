@@ -213,13 +213,6 @@
         </div>
         <button class="icon-btn" id="refresh" aria-label="Actualizar"><span>↻</span></button>
       </div>
-      <div class="keybox" id="keybox" hidden>
-        <p class="lead">Pega la clave del servidor (te llegó por ntfy). Solo una vez.</p>
-        <div class="row2">
-          <input type="password" id="clave" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="clave" aria-label="Clave del servidor">
-          <button id="saveClave">Guardar</button>
-        </div>
-      </div>
       <div class="mine" id="mine" hidden></div>
       <ul class="zonas" id="zonas"></ul>
       <p class="note" id="liveNote" hidden></p>
@@ -509,12 +502,11 @@ let ultimo = null, cargando = false, liveH = null, reservando = false;
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 async function servidor(ruta, datos) {
-  const url = `${WORKER}${ruta}?k=${encodeURIComponent(clave)}`;
-  // POST con texto plano: el navegador no hace consulta previa, así responde más rápido
-  const r = datos ? await fetch(url, { method: "POST", body: JSON.stringify(datos), cache: "no-store" })
-                  : await fetch(url, { cache: "no-store" });
+  const url = clave ? `${WORKER}${ruta}?k=${encodeURIComponent(clave)}` : `${WORKER}${ruta}`;
+  // POST con texto plano: el navegador no hace consulta previa, así responde más rápido.
+  // El servidor te reconoce con la misma llave de GitHub que usa el panel.
+  const r = await fetch(url, { method: "POST", body: JSON.stringify({ ...(datos || {}), gh: memToken }), cache: "no-store" });
   const j = await r.json().catch(() => ({ error: `El servidor respondió ${r.status}` }));
-  if (r.status === 401) { store.del(KEY_CLAVE); clave = ""; }
   if (!r.ok || j.error) throw new Error(j.error || `Error ${r.status}`);
   return j;
 }
@@ -562,8 +554,7 @@ function pintarLive(d, viejo = false) {
 
 async function cargarLive(silencioso = false) {
   clearTimeout(liveH);
-  if (!clave) { $("keybox").hidden = false; $("liveMeta").textContent = "Falta configurar"; return; }
-  $("keybox").hidden = true;
+  if (!memToken) return;
   if (cargando || reservando) return;
   cargando = true; $("refresh").classList.add("spin");
   if (!ultimo && !silencioso && !store.get("mi_asiento_estado")) $("liveMeta").textContent = "Conectando con la biblioteca…";
@@ -577,11 +568,10 @@ async function cargarLive(silencioso = false) {
   }
   catch (e) {
     const nota = $("liveNote"); nota.hidden = false; nota.className = "note err";
-    nota.textContent = clave ? `No pude ver las salas: ${e.message}` : "La clave del servidor no es correcta. Pégala de nuevo.";
-    if (!clave) $("keybox").hidden = false;
+    nota.textContent = `No pude ver las salas: ${e.message}`;
   } finally {
     cargando = false; $("refresh").classList.remove("spin");
-    if (!document.hidden && clave) liveH = setTimeout(() => cargarLive(true), 10000);
+    if (!document.hidden && memToken) liveH = setTimeout(() => cargarLive(true), 10000);
   }
 }
 
@@ -609,11 +599,6 @@ async function cancelarMia(m) {
 }
 
 $("refresh").onclick = () => cargarLive();
-$("saveClave").onclick = () => {
-  const v = $("clave").value.trim();
-  if (v.length < 12) { toast("Esa clave es muy corta."); return; }
-  clave = v; store.set(KEY_CLAVE, v); $("clave").value = ""; cargarLive();
-};
 document.addEventListener("visibilitychange", () => { if (!document.hidden && memToken) cargarLive(true); });
 
 mostrar();
