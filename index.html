@@ -519,9 +519,10 @@ async function servidor(ruta, datos) {
   return j;
 }
 
-function pintarLive(d) {
+function pintarLive(d, viejo = false) {
   const nota = $("liveNote"); nota.hidden = true;
-  $("liveMeta").textContent = `Actualizado ${d.hora} · respondió en ${(d.ms / 1000).toFixed(1)} s`;
+  $("liveMeta").textContent = viejo ? `Última vez a las ${d.hora.slice(0, 5)} · actualizando…`
+    : `Actualizado ${d.hora} · respondió en ${(d.ms / 1000).toFixed(1)} s`;
   const m = d.mi_reserva, mine = $("mine");
   if (m) {
     const est = ESTADOS[m.estado] || m.estado || "";
@@ -530,10 +531,10 @@ function pintarLive(d) {
     const ini = horas[0] ? horas[0].slice(0, 5) : "", finR = horas[1] ? horas[1].slice(0, 5) : "";
     let checkin = "";
     if (cancelable && ini) { const t = deHM(ini) + 60; checkin = ` · check-in antes de las ${aHM(t)}`; }
-    m.hora = ini && finR ? `${ini} a ${finR}${checkin}` : (m.hora || "");
+    const horaTxt = ini && finR ? `${ini} a ${finR}${checkin}` : (m.hora || "");
     mine.hidden = false;
     mine.innerHTML = `<div class="k">Tu reserva</div><div class="v">${esc(m.asiento)}</div>
-      <div class="d">${esc(est)} · ${esc(m.hora)}</div>
+      <div class="d">${esc(est)} · ${esc(horaTxt)}</div>
       ${cancelable ? `<button id="cancelMine">Cancelar reserva</button>` : ""}`;
     if (cancelable) $("cancelMine").onclick = () => cancelarMia(m);
   } else mine.hidden = true;
@@ -548,7 +549,7 @@ function pintarLive(d) {
       sub = p.join(" · ");
     }
     const botones = hay ? `<div class="seats">${z.libres.slice(0, 12).map((a) =>
-      `<button class="seat" data-area="${esc(z.area)}" data-seat="${esc(a.id)}" data-seg="${esc(z.segment)}" data-name="${esc(a.name)}" data-zona="${esc(z.nombre)}" ${m ? "disabled" : ""}>${esc(a.name)}</button>`).join("")}</div>` : "";
+      `<button class="seat" data-area="${esc(z.area)}" data-seat="${esc(a.id)}" data-seg="${esc(z.segment)}" data-name="${esc(a.name)}" data-zona="${esc(z.nombre)}" ${m || viejo ? "disabled" : ""}>${esc(a.name)}</button>`).join("")}</div>` : "";
     return `<li class="zona ${hay ? "hay" : ""}"><div class="zona-top"><b class="plan">${esc(z.plan)}</b>
       <div><div class="zn">${esc(z.nombre)}</div><div class="zs">${esc(sub)}</div></div>
       <span class="count">${z.abierta ? `${z.libres.length}/${z.total}` : "–"}</span></div>${botones}</li>`;
@@ -565,8 +566,15 @@ async function cargarLive(silencioso = false) {
   $("keybox").hidden = true;
   if (cargando || reservando) return;
   cargando = true; $("refresh").classList.add("spin");
-  if (!ultimo && !silencioso) $("liveMeta").textContent = "Conectando con la biblioteca (la primera vez tarda ~5 s)…";
-  try { ultimo = await servidor("/estado"); pintarLive(ultimo); }
+  if (!ultimo && !silencioso && !store.get("mi_asiento_estado")) $("liveMeta").textContent = "Conectando con la biblioteca…";
+  if (!ultimo) {
+    // muestra al instante lo último que se vio hoy (botones desactivados hasta tener datos frescos)
+    try { const c = JSON.parse(store.get("mi_asiento_estado") || "null"); if (c && c.dia === new Date().toDateString()) pintarLive(c, true); } catch {}
+  }
+  try {
+    ultimo = await servidor("/estado"); pintarLive(ultimo);
+    store.set("mi_asiento_estado", JSON.stringify({ ...ultimo, dia: new Date().toDateString() }));
+  }
   catch (e) {
     const nota = $("liveNote"); nota.hidden = false; nota.className = "note err";
     nota.textContent = clave ? `No pude ver las salas: ${e.message}` : "La clave del servidor no es correcta. Pégala de nuevo.";
