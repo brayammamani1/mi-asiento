@@ -1,0 +1,4 @@
+# Nunca subir notas, llaves ni contraseñas (este repo es público)
+*.txt
+!README.txt
+.env

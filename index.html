@@ -415,7 +415,12 @@ async function cargarRuns() {
   let activo = false, errorCarga = false;
   try {
     const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=5`);
-    if (!r.ok) { errorCarga = true; $("runs").innerHTML = `<li class="empty">${explicar(r.status)}</li>`; return; }
+    if (!r.ok) {
+      errorCarga = true;
+      $("runs").innerHTML = `<li class="empty">${explicar(r.status)}</li>`;
+      if (r.status === 401 || r.status === 403 || r.status === 404) ofrecerLlaveNueva($("runs"));
+      return;
+    }
     const { workflow_runs: runs = [] } = await r.json();
     $("runs").innerHTML = runs.length ? runs.map((run) => {
       const d = describir(run); if (d.vivo) activo = true;
@@ -496,7 +501,9 @@ const KEY_CLAVE = "mi_asiento_clave";
   const m = location.hash.match(/clave=([A-Za-z0-9_-]{12,})/);
   if (m) { store.set(KEY_CLAVE, m[1]); history.replaceState(null, "", location.pathname + location.search); }
 })();
-let clave = store.get(KEY_CLAVE);
+// la versión vieja pedía una «clave del servidor»; ya no se usa: se borra lo que haya quedado guardado
+store.del(KEY_CLAVE);
+let clave = "";
 const ESTADOS = { "预约成功": "Reservado, falta el check-in", "已预约": "Reservado, falta el check-in", "使用中": "En uso", "临时离开": "Salida temporal" };
 let ultimo = null, cargando = false, liveH = null, reservando = false;
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -569,6 +576,7 @@ async function cargarLive(silencioso = false) {
   catch (e) {
     const nota = $("liveNote"); nota.hidden = false; nota.className = "note err";
     nota.textContent = `No pude ver las salas: ${e.message}`;
+    if (/Sin permiso/.test(e.message)) ofrecerLlaveNueva(nota);
   } finally {
     cargando = false; $("refresh").classList.remove("spin");
     if (!document.hidden && memToken) liveH = setTimeout(() => cargarLive(true), 10000);
@@ -600,6 +608,29 @@ async function cancelarMia(m) {
 
 $("refresh").onclick = () => cargarLive();
 document.addEventListener("visibilitychange", () => { if (!document.hidden && memToken) cargarLive(true); });
+
+
+// ---------- llave vencida o regenerada: pegar una nueva sin buscar el botón de abajo ----------
+function ofrecerLlaveNueva(donde) {
+  if (donde.querySelector?.(".btn-llave")) return;
+  const b = document.createElement("button");
+  b.className = "btn quiet btn-llave"; b.textContent = "Pegar llave nueva de GitHub";
+  b.onclick = () => { store.del(KEY); memToken = ""; mostrar(); $("token").focus(); };
+  donde.after ? donde.after(b) : donde.appendChild(b);
+}
+
+// ---------- el panel se actualiza solo cuando publico una versión nueva ----------
+const VERSION = "2026-11-10.4";
+(async function revisarVersion() {
+  try {
+    const t = await (await fetch(`${location.pathname}?v=${Date.now()}`, { cache: "no-store" })).text();
+    const m = t.match(/const VERSION = "([^"]+)"/);
+    if (m && m[1] !== VERSION && sessionStorage.getItem("recargado") !== m[1]) {
+      sessionStorage.setItem("recargado", m[1]);
+      location.reload();
+    }
+  } catch {}
+})();
 
 mostrar();
 </script>
