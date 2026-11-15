@@ -506,6 +506,8 @@ store.del(KEY_CLAVE);
 let clave = "";
 const ESTADOS = { "预约成功": "Reservado, falta el check-in", "已预约": "Reservado, falta el check-in", "使用中": "En uso", "临时离开": "Salida temporal" };
 let ultimo = null, cargando = false, liveH = null, reservando = false;
+let erroresLive = 0; // si el servidor o la biblioteca fallan, preguntar cada vez menos seguido
+const ESPERAS_LIVE = [10, 30, 60, 120];
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 async function servidor(ruta, datos) {
@@ -570,16 +572,19 @@ async function cargarLive(silencioso = false) {
     try { const c = JSON.parse(store.get("mi_asiento_estado") || "null"); if (c && c.dia === new Date().toDateString()) pintarLive(c, true); } catch {}
   }
   try {
-    ultimo = await servidor("/estado"); pintarLive(ultimo);
+    ultimo = await servidor("/estado"); pintarLive(ultimo); erroresLive = 0;
     store.set("mi_asiento_estado", JSON.stringify({ ...ultimo, dia: new Date().toDateString() }));
   }
   catch (e) {
     const nota = $("liveNote"); nota.hidden = false; nota.className = "note err";
-    nota.textContent = `No pude ver las salas: ${e.message}`;
+    erroresLive++;
+    const prox = ESPERAS_LIVE[Math.min(erroresLive, ESPERAS_LIVE.length - 1)];
+    nota.textContent = `No pude ver las salas: ${e.message} · Vuelvo a probar en ${prox >= 60 ? prox / 60 + " min" : prox + " s"}.`;
     if (/Sin permiso/.test(e.message)) ofrecerLlaveNueva(nota);
   } finally {
     cargando = false; $("refresh").classList.remove("spin");
-    if (!document.hidden && memToken) liveH = setTimeout(() => cargarLive(true), 10000);
+    const espera = ESPERAS_LIVE[Math.min(erroresLive, ESPERAS_LIVE.length - 1)];
+    if (!document.hidden && memToken) liveH = setTimeout(() => cargarLive(true), espera * 1000);
   }
 }
 
@@ -620,7 +625,7 @@ function ofrecerLlaveNueva(donde) {
 }
 
 // ---------- el panel se actualiza solo cuando publico una versión nueva ----------
-const VERSION = "2026-11-10.4";
+const VERSION = "2026-11-15.1";
 (async function revisarVersion() {
   try {
     const t = await (await fetch(`${location.pathname}?v=${Date.now()}`, { cache: "no-store" })).text();
